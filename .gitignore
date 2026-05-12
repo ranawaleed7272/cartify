@@ -137,3 +137,5 @@ temp/
 *.pem
 
 .aider*
+
+/lib/generated/prisma

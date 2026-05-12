@@ -147,7 +147,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSuccess }) => 
       };
 
       const isEditing = !!values._id;
-      const apiUrl = isEditing ? `/api/products/${values._id}` : '/api/products';
+      // Update by ID using query param so it hits pages/api/products/index.js PUT handler
+      const apiUrl = isEditing ? `/api/products?id=${encodeURIComponent(String(values._id))}` : '/api/products';
       const httpMethod = isEditing ? 'PUT' : 'POST';
 
       const response = await axios({

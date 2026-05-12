@@ -1,17 +1,19 @@
 import { createRouter } from 'next-connect';
 import dbConnect from '../../../lib/db';
 import Product from '../../../models/Product';
-import Category from '../../../models/Category'; // Import Category model
-import Brand from '../../../models/Brand';     // Import Brand model
+import Category from '../../../models/Category'; // Category model zaroori hai
+import Brand from '../../../models/Brand';     // Brand model zaroori hai
 
 const router = createRouter();
 
+// 1. GET ROUTE: Products ko fetch, search aur sort karne ke liye
 router.get(async (req, res) => {
   await dbConnect();
   try {
-    const { searchTerm, isFeatured, isOnDeal, debug, category } = req.query;
+    const { searchTerm, isFeatured, isOnDeal, category, sort } = req.query;
     let query = {};
 
+    // Search Logic
     if (searchTerm) {
       query = {
         $or: [
@@ -33,30 +35,44 @@ router.get(async (req, res) => {
       const categoryDoc = await Category.findOne({ slug: category });
       if (categoryDoc) {
         query = { ...query, category: categoryDoc._id };
-      } else {
-        return res.status(404).json({ error: 'Category not found' });
       }
     }
 
-    const products = await Product.find(query).populate('category').populate('brand');
+    // Naya Sorting Logic (Low to High / High to Low)
+    let sortOptions = {};
+    if (sort === 'priceLowToHigh') {
+      sortOptions = { price: 1 }; // Sasta pehle
+    } else if (sort === 'priceHighToLow') {
+      sortOptions = { price: -1 }; // Mehenga pehle
+    } else {
+      sortOptions = { createdAt: -1 }; // Default: Latest products
+    }
+
+    const products = await Product.find(query)
+      .populate('category')
+      .populate('brand')
+      .sort(sortOptions); 
+
     res.status(200).json(products);
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ error: 'Failed to fetch products' });
   }
 })
+
+// 2. POST ROUTE: Naya product banane ke liye (Waisa hi rakha hai)
 .post(async (req, res) => {
   await dbConnect();
   try {
-    console.log("Product creation request body:", req.body);
     const product = await Product.create(req.body);
-    console.log("Product created successfully:", product);
     res.status(201).json(product);
   } catch (error) {
     console.error("Error creating product:", error);
     res.status(500).json({ error: 'Failed to create product' });
   }
 })
+
+// 3. PUT ROUTE: Product update karne ke liye
 .put(async (req, res) => {
   await dbConnect();
   try {
@@ -67,7 +83,6 @@ router.get(async (req, res) => {
     }
     res.status(200).json(product);
   } catch (error) {
-    console.error("Error updating product:", error);
     res.status(500).json({ error: 'Failed to update product' });
   }
 });

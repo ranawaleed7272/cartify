@@ -1,18 +1,19 @@
 import Link from 'next/link'
 import React from 'react'
-import Image from 'next/image'
-import { cn } from '@/lib/utils'
 
-interface LogoProps {
-  headerLogo?: string;
-}
-
-const Logo: React.FC<LogoProps> = ({ headerLogo }) => {
-  const logoSrc = headerLogo || "/Logo.png";
-  console.log("Logo src:", logoSrc);
+const Logo = () => {
   return (
-    <Link href="/" className='w-22'>
-        <Image src={logoSrc} alt="WebLogo" className={cn("w-22")} priority width={88} height={32} />
+    <Link href="/" className="flex items-center gap-0 group">
+      {/* "Tech" wala part - Purple/Indigo Color */}
+      <span className="text-2xl font-black tracking-tighter text-indigo-600 transition-colors group-hover:text-indigo-500">
+        Tech
+      </span>
+      {/* "Pulse" wala part - White ya Dark Gray (background ke hisaab se) */}
+      <span className="text-2xl font-black tracking-tighter text-white transition-transform group-hover:scale-105">
+        Pulse
+      </span>
+      {/* Ek chota sa dot futuristic look ke liye */}
+      <span className="h-2 w-2 rounded-full bg-indigo-600 ml-0.5 animate-pulse"></span>
     </Link>
   )
 }
